@@ -28,7 +28,7 @@
 #include <jansson.h>
 #include <limits.h>
 
-#define INNER_HEAP_SIZE 0x46D100
+#define INNER_HEAP_SIZE 0x1EFB7
 #define MAX_LINE_LENGTH 26
 #define SOCK_BUFFERSIZE 256
 
