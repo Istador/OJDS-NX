@@ -1,7 +1,7 @@
 /*
  * Open Joystick Display Server NX
- * Copyright (C) 2019 Nichole Mattera
- * This file is part of OJDS-NX <https://github.com/NicholeMattera/OJDS-NX>.
+ * Copyright (C) 2021 Nichole Mattera
+ * This file is part of OJDS-NX <https://git.nicholemattera.com/NicholeMattera/OJDS-NX>.
  *
  * OJDS-NX is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,11 +49,11 @@ extern "C" {
 
         rc = smInitialize();
         if (R_FAILED(rc))
-            fatalSimple(MAKERESULT(Module_Libnx, LibnxError_InitFail_SM));
+            diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_InitFail_SM));
 
         rc = hidInitialize();
         if (R_FAILED(rc))
-            fatalSimple(MAKERESULT(Module_Libnx, LibnxError_InitFail_HID));
+            diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_InitFail_HID));
 
         static const SocketInitConfig socketInitConfig = {
             .bsdsockets_version = 1,
@@ -71,7 +71,7 @@ extern "C" {
 
         rc = socketInitialize(&socketInitConfig);
         if (R_FAILED(rc))
-            fatalSimple(rc);
+            diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_ShouldNotHappen));
     }
 
     void __appExit(void) {
@@ -85,6 +85,11 @@ int main(int argc, char * argv[]) {
     auto buffer = new char[BUFFER_SIZE];
     auto server_sock = setupServerSocket();
     int client_sock = -1;
+
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+
+    PadState pad;
+    padInitializeDefault(&pad);
 
     while (appletMainLoop()) {
         client_sock = accept(server_sock, NULL, NULL);
@@ -103,13 +108,11 @@ int main(int argc, char * argv[]) {
                 break;
             }
             
-            hidScanInput();
-            auto keys = hidKeysHeld(CONTROLLER_P1_AUTO);
+            padUpdate(&pad);
+            auto keys = padGetButtons(&pad);
 
-            JoystickPosition lPos;
-            JoystickPosition rPos;
-            hidJoystickRead(&lPos, CONTROLLER_P1_AUTO, JOYSTICK_LEFT);
-            hidJoystickRead(&rPos, CONTROLLER_P1_AUTO, JOYSTICK_RIGHT);
+            HidAnalogStickState lPos = padGetStickPos(&pad, 0);
+            HidAnalogStickState rPos = padGetStickPos(&pad, 1);
 
             auto payload = buildJSONPayload(keys, lPos, rPos);
             write(client_sock, payload.c_str(), payload.size());

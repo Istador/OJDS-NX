@@ -1,7 +1,7 @@
 /*
  * Open Joystick Display Server NX
- * Copyright (C) 2019 Nichole Mattera
- * This file is part of OJDS-NX <https://github.com/NicholeMattera/OJDS-NX>.
+ * Copyright (C) 2021 Nichole Mattera
+ * This file is part of OJDS-NX <https://git.nicholemattera.com/NicholeMattera/OJDS-NX>.
  *
  * OJDS-NX is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ int setupServerSocket() {
     return server_sock;
 }
 
-string buildJSONPayload(u64 keys, JoystickPosition lPos, JoystickPosition rPos) {
+string buildJSONPayload(u64 keys, HidAnalogStickState lPos, HidAnalogStickState rPos) {
     auto root = json_object();
     auto axes = json_array();
     auto buttons = json_array();
@@ -57,10 +57,10 @@ string buildJSONPayload(u64 keys, JoystickPosition lPos, JoystickPosition rPos) 
     json_object_set_new(root, "mapping", json_string("standard"));
     json_object_set_new(root, "timestamp", json_real(0));
 
-    json_array_append_new(axes, json_real((double) lPos.dx / (double) SHRT_MAX));
-    json_array_append_new(axes, json_real((double) lPos.dy * -1 / (double) SHRT_MAX));
-    json_array_append_new(axes, json_real((double) rPos.dx / (double) SHRT_MAX));
-    json_array_append_new(axes, json_real((double) rPos.dy * -1 / (double) SHRT_MAX));
+    json_array_append_new(axes, json_real((double) lPos.x / (double) SHRT_MAX));
+    json_array_append_new(axes, json_real((double) lPos.y * -1 / (double) SHRT_MAX));
+    json_array_append_new(axes, json_real((double) rPos.x / (double) SHRT_MAX));
+    json_array_append_new(axes, json_real((double) rPos.y * -1 / (double) SHRT_MAX));
 
     for (int i = 0; i < 16; i++) {
         bool keyPressed = keys & BIT(i);

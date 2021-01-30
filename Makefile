@@ -40,7 +40,6 @@ include $(DEVKITPRO)/libnx/switch_rules
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	source
-INCLUDES	:=	include
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -58,11 +57,6 @@ ASFLAGS		:=	-g $(ARCH)
 LDFLAGS		=	-specs=$(DEVKITPRO)/libnx/switch.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 
 LIBS		:=	-ljansson -lnx
-
-ifneq ($(shell which ccache),)
-	CXX		:=	$(shell which ccache) $(CXX)
-	CC		:=	$(shell which ccache) $(CC)
-endif
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
